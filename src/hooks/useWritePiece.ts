@@ -2,6 +2,7 @@ import Jimp from "jimp";
 import { useCallback, useState } from "react";
 import Piece from "../types/Piece";
 import { v4 as uuidv4 } from "uuid";
+import lcgFetch from "../helpers/lcgFetch";
 
 const MAX_DIMENSION = 200;
 
@@ -21,11 +22,10 @@ async function shrinkImage(image: File): Promise<Buffer> {
 }
 
 function fetchUploadImage(image: Buffer): Promise<Response> {
-  return fetch(`${process.env.REACT_APP_INVOKE_URL}/upload-image`, {
+  return lcgFetch({
+    endpoint: "/upload-image",
     method: "PUT",
-    headers: {
-      "Content-Type": "image/jpeg",
-    },
+    contentType: "image/jpeg",
     body: image,
   });
 }
@@ -37,11 +37,10 @@ function fetchWritePiece(piece: Piece, pictureId: string): Promise<Response> {
     pictureId,
   };
 
-  return fetch(`${process.env.REACT_APP_INVOKE_URL}/write-piece`, {
+  return lcgFetch({
+    endpoint: "/write-piece",
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    contentType: "application/json",
     body: JSON.stringify(pieceWithId),
   });
 }
