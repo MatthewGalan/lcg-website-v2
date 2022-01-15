@@ -4,8 +4,8 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PortalPage from "./components/PortalPage";
 import LoginPage from "./components/LoginPage";
-import Cookies from "js-cookie";
 import RequireAuth from "./components/RequireAuth";
+import useReadAllPieces from "./hooks/useReadAllPieces";
 
 const theme = createTheme({
   typography: {
@@ -22,6 +22,16 @@ const theme = createTheme({
 });
 
 function App() {
+  const {
+    loading: layoutAndPiecesLoading,
+    error: layoutAndPiecesError,
+    data: layoutAndPieces,
+  } = useReadAllPieces();
+
+  if (layoutAndPiecesLoading) {
+    return null;
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
@@ -31,7 +41,7 @@ function App() {
             path="/portal"
             element={
               <RequireAuth>
-                <PortalPage />
+                <PortalPage layoutAndPieces={layoutAndPieces} />
               </RequireAuth>
             }
           />

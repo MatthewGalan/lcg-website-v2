@@ -45,7 +45,7 @@ export default function useLogin() {
 
           // Store Cognito ID token as a cookie
           const idToken = e.getIdToken();
-          Cookies.set("lcg-id-token", idToken.getJwtToken());
+          Cookies.set("lcg-id-token", idToken.getJwtToken(), { expires: 1 });
 
           // Send the user back to where they were before the login page
           let from = (location.state as any)?.from?.pathname || "/portal";

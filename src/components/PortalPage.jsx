@@ -1,12 +1,24 @@
 import React, { useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { Stack } from "@mui/material";
+import colors from "../Colors";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import PortalHeader from "./portal/PortalHeader";
+import UnsavedChanges from "./portal/UnsavedChanges";
 
-// fake data generator
-const getItems = (count, offset = 0) =>
-  Array.from({ length: count }, (v, k) => k).map((k) => ({
-    id: `item-${k + offset}-${new Date().getTime()}`,
-    content: `item ${k + offset}`,
-  }));
+const StyledHiddenHeader = styled.div`
+  display: flex;
+  color: ${colors.red};
+  margin-bottom: 8px;
+  opacity: ${(props) => (props.index === 0 ? 1 : 0)};
+
+  .hidden-text {
+    margin-left: 8px;
+    font-weight: 500;
+  }
+`;
 
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
@@ -32,71 +44,123 @@ const move = (source, destination, droppableSource, droppableDestination) => {
 
   return result;
 };
-const grid = 8;
 
 const getItemStyle = (isDragging, draggableStyle) => ({
-  // some basic styles to make the items look a bit nicer
   userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
+  margin: "0 0 8px 0",
 
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
-
-  // styles we need to apply on draggables
   ...draggableStyle,
 });
 
-const getListStyle = (isDraggingOver) => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250,
-});
+const getListStyle = (index) => {
+  const hiddenListStyle =
+    index === 0
+      ? {
+          border: `1px solid ${colors.red}`,
+          background: "#efe2df",
+        }
+      : {};
 
-export default function PortalPage() {
-  const [state, setState] = useState([getItems(10), getItems(5, 10)]);
+  return {
+    padding: 8,
+    width: 250,
+    ...hiddenListStyle,
+  };
+};
+
+function layoutToArray(layoutAndPieces) {
+  const { hidden, left, middle, right } = layoutAndPieces.layout;
+  return [hidden, left, middle, right];
+}
+
+function arrayToLayout(array) {
+  return {
+    hidden: array[0],
+    left: array[1],
+    middle: array[2],
+    right: array[3],
+  };
+}
+
+function getImgSrcFromPieceId(pieceId, pieces) {
+  const piece = pieces.find((p) => p.id === pieceId);
+  return process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId;
+}
+
+export default function PortalPage({ layoutAndPieces }) {
+  const propsLayoutArray = layoutToArray(layoutAndPieces);
+
+  const navigate = useNavigate();
+  const [cloudLayout, setCloudLayout] = useState(propsLayoutArray);
+  const [localLayout, setLocalLayout] = useState(propsLayoutArray);
 
   function onDragEnd(result) {
     const { source, destination } = result;
 
-    // dropped outside the list
-    if (!destination) {
-      return;
-    }
-    const sInd = +source.droppableId;
-    const dInd = +destination.droppableId;
+    // Dropped out of bounds
+    if (!destination) return;
 
-    if (sInd === dInd) {
-      const items = reorder(state[sInd], source.index, destination.index);
-      const newState = [...state];
-      newState[sInd] = items;
-      setState(newState);
+    const sourceId = +source.droppableId;
+    const destinationId = +destination.droppableId;
+
+    if (sourceId === destinationId) {
+      // Moved within a column
+      const items = reorder(
+        localLayout[sourceId],
+        source.index,
+        destination.index
+      );
+
+      const newState = [...localLayout];
+      newState[sourceId] = items;
+      setLocalLayout(newState);
     } else {
-      const result = move(state[sInd], state[dInd], source, destination);
-      const newState = [...state];
-      newState[sInd] = result[sInd];
-      newState[dInd] = result[dInd];
+      // Moved to a different column
+      const result = move(
+        localLayout[sourceId],
+        localLayout[destinationId],
+        source,
+        destination
+      );
 
-      setState(newState.filter((group) => group.length));
+      const newState = [...localLayout];
+      newState[sourceId] = result[sourceId];
+      newState[destinationId] = result[destinationId];
+      setLocalLayout(newState);
     }
   }
 
   return (
     <div>
-      <div style={{ display: "flex" }}>
+      <UnsavedChanges
+        localLayout={localLayout}
+        cloudLayout={cloudLayout}
+        setLayouts={(layout) => {
+          setLocalLayout(layout);
+          setCloudLayout(layout);
+        }}
+      />
+
+      <PortalHeader />
+
+      <Stack direction="row" justifyContent="center">
         <DragDropContext onDragEnd={onDragEnd}>
-          {state.map((el, ind) => (
-            <Droppable key={ind} droppableId={`${ind}`}>
+          {localLayout.map((column, index) => (
+            <Droppable key={index} droppableId={"" + index}>
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
+                  style={getListStyle(index)}
                   {...provided.droppableProps}
                 >
-                  {el.map((item, index) => (
+                  <StyledHiddenHeader index={index}>
+                    <VisibilityOffIcon />
+                    <div className="hidden-text">HIDDEN</div>
+                  </StyledHiddenHeader>
+                  {column.map((pieceId, index) => (
                     <Draggable
-                      key={item.id}
-                      draggableId={item.id}
+                      key={pieceId}
+                      draggableId={pieceId}
                       index={index}
                     >
                       {(provided, snapshot) => (
@@ -115,7 +179,13 @@ export default function PortalPage() {
                               justifyContent: "space-around",
                             }}
                           >
-                            {item.content}
+                            <img
+                              src={getImgSrcFromPieceId(
+                                pieceId,
+                                layoutAndPieces.pieces
+                              )}
+                              alt=""
+                            />
                           </div>
                         </div>
                       )}
@@ -127,7 +197,7 @@ export default function PortalPage() {
             </Droppable>
           ))}
         </DragDropContext>
-      </div>
+      </Stack>
     </div>
   );
 }

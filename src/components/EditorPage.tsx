@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import {
+  Alert,
   Button,
   Container,
   FormControl,
@@ -22,6 +23,7 @@ import Colors from "../Colors";
 import OtherRadioGroup from "./common/OtherRadioGroup";
 import useWritePiece from "../hooks/useWritePiece";
 import Piece from "../types/Piece";
+import LoadingSpinner from "./common/LoadingSpinner";
 
 const StyledDropzone = styled.div<{ isDragActive: boolean }>`
   border: 1px dashed ${Colors.green};
@@ -63,6 +65,10 @@ const StyledImagePreview = styled.div`
   }
 `;
 
+const StyledLoadingSpinner = styled(LoadingSpinner)`
+  height: 58px;
+`;
+
 const startingPiece: Piece = {
   title: "",
   story: "",
@@ -95,7 +101,7 @@ export default function EditorPage({}: AddPiecePageProps) {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  const { writePiece } = useWritePiece();
+  const { writePiece, loading, error } = useWritePiece();
 
   return (
     <Container maxWidth="sm">
@@ -220,17 +226,27 @@ export default function EditorPage({}: AddPiecePageProps) {
           />
         )}
 
-        <Stack sx={{ pt: 4 }}>
-          <Button
-            size="large"
-            variant="contained"
-            startIcon={<AddIcon />}
-            sx={{ py: 2 }}
-            onClick={() => file && writePiece(pieceDraft, file)}
-          >
-            Add piece
-          </Button>
-        </Stack>
+        {loading ? (
+          <StyledLoadingSpinner />
+        ) : (
+          <Stack sx={{ pt: 4 }}>
+            <Button
+              size="large"
+              variant="contained"
+              startIcon={<AddIcon />}
+              sx={{ py: 2 }}
+              onClick={() => file && writePiece(pieceDraft, file)}
+            >
+              Add piece
+            </Button>
+          </Stack>
+        )}
+
+        {error && (
+          <Alert severity="error" variant="outlined">
+            {error}
+          </Alert>
+        )}
       </Stack>
     </Container>
   );

@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import Piece from "../types/Piece";
 import { v4 as uuidv4 } from "uuid";
 import lcgFetch from "../helpers/lcgFetch";
+import { useNavigate } from "react-router-dom";
 
 const MAX_DIMENSION = 200;
 
@@ -30,10 +31,14 @@ function fetchUploadImage(image: Buffer): Promise<Response> {
   });
 }
 
-function fetchWritePiece(piece: Piece, pictureId: string): Promise<Response> {
+function fetchWritePiece(
+  pieceId: string,
+  piece: Piece,
+  pictureId: string
+): Promise<Response> {
   const pieceWithId = {
     ...piece,
-    id: uuidv4(),
+    id: pieceId,
     pictureId,
   };
 
@@ -46,38 +51,49 @@ function fetchWritePiece(piece: Piece, pictureId: string): Promise<Response> {
 }
 
 export default function useWritePiece() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const writePiece = useCallback(async (piece: Piece, image: File) => {
-    setError("");
-    setLoading(true);
+  const writePiece = useCallback(
+    async (piece: Piece, image: File) => {
+      setError("");
+      setLoading(true);
 
-    // Upload image
-    const resizedImage = await shrinkImage(image);
-    const imageUploadResponse = await fetchUploadImage(resizedImage);
+      // Upload image
+      const resizedImage = await shrinkImage(image);
+      const imageUploadResponse = await fetchUploadImage(resizedImage);
 
-    // Handle image upload failure
-    if (!imageUploadResponse.ok) {
-      setError(imageUploadResponse.statusText);
+      // Handle image upload failure
+      if (!imageUploadResponse.ok) {
+        setError(imageUploadResponse.statusText);
+        setLoading(false);
+        return;
+      }
+
+      // Write piece
+      const pictureId = await imageUploadResponse.text();
+      const pieceId = uuidv4();
+      const writePieceResponse = await fetchWritePiece(
+        pieceId,
+        piece,
+        pictureId
+      );
+
+      // Handle piece write failure
+      if (!writePieceResponse.ok) {
+        setError(writePieceResponse.statusText);
+        setLoading(false);
+        return;
+      }
+
+      // Everything is good
       setLoading(false);
-      return;
-    }
 
-    // Write piece
-    const pictureId = await imageUploadResponse.text();
-    const writePieceResponse = await fetchWritePiece(piece, pictureId);
-
-    // Handle piece write failure
-    if (!writePieceResponse.ok) {
-      setError(writePieceResponse.statusText);
-      setLoading(false);
-      return;
-    }
-
-    // Everything is good
-    setLoading(false);
-  }, []);
+      navigate("/portal", { state: pieceId });
+    },
+    [navigate]
+  );
 
   return { writePiece, loading, error };
 }
