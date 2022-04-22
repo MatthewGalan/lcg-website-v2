@@ -22,13 +22,20 @@ const theme = createTheme({
 });
 
 function App() {
+  /**
+   * TODO: convert useReadAllPieces so we call useEffect here instead of inside
+   *       of the hook. then have useWritePiece update layOutAndPieces. this will
+   *       prevent us from having to reload the page or call the API after a new
+   *       piece is added.
+   */
+
   const {
     loading: layoutAndPiecesLoading,
     error: layoutAndPiecesError,
     data: layoutAndPieces,
   } = useReadAllPieces();
 
-  if (layoutAndPiecesLoading) {
+  if (!layoutAndPieces) {
     return null;
   }
 
@@ -49,7 +56,7 @@ function App() {
             path="/portal/editor"
             element={
               <RequireAuth>
-                <EditorPage />
+                <EditorPage layout={layoutAndPieces.layout} />
               </RequireAuth>
             }
           />

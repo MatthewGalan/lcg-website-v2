@@ -24,6 +24,10 @@ import OtherRadioGroup from "./common/OtherRadioGroup";
 import useWritePiece from "../hooks/useWritePiece";
 import Piece from "../types/Piece";
 import LoadingSpinner from "./common/LoadingSpinner";
+import Layout from "../types/Layout";
+import dataUrlToBlob from "../helpers/dataUrlToBlob";
+
+const MAX_DIMENSION = 200;
 
 const StyledDropzone = styled.div<{ isDragActive: boolean }>`
   border: 1px dashed ${Colors.green};
@@ -80,28 +84,67 @@ const startingPiece: Piece = {
   price: 0,
 };
 
-interface AddPiecePageProps {}
+interface AddPiecePageProps {
+  layout: Layout;
+}
 
-export default function EditorPage({}: AddPiecePageProps) {
-  const [file, setFile] = useState<File | undefined>(undefined);
+export default function EditorPage({ layout }: AddPiecePageProps) {
+  const [blob, setBlob] = useState<Blob | undefined>(undefined);
   const [fileDataUri, setFileDataUri] = useState<any>();
 
   const [pieceDraft, setPieceDraft] = useState<Piece>(startingPiece);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const selectedFile = acceptedFiles[0];
-
+  const onDrop = useCallback(([selectedFile]: File[]) => {
     if (!selectedFile) return;
 
-    setFile(selectedFile);
+    if (!selectedFile.type.match(/image.*/)) {
+      console.log("File must be an image");
+      return;
+    }
 
     const fileReader = new FileReader();
-    fileReader.onloadend = (e) => setFileDataUri(e.target?.result);
+
+    fileReader.onload = (readerEvent) => {
+      const image = new Image();
+
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = image.width;
+        let height = image.height;
+
+        if (width > height) {
+          if (width > MAX_DIMENSION) {
+            height *= MAX_DIMENSION / width;
+            width = MAX_DIMENSION;
+          }
+        } else {
+          if (height > MAX_DIMENSION) {
+            width *= MAX_DIMENSION / height;
+            height = MAX_DIMENSION;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        canvas.getContext("2d")?.drawImage(image, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg");
+        const newBlob = dataUrlToBlob(dataUrl);
+
+        setFileDataUri(dataUrl);
+        setBlob(newBlob);
+      };
+
+      // @ts-ignore
+      image.src = readerEvent.target.result;
+    };
+
     fileReader.readAsDataURL(selectedFile);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  const { writePiece, loading, error } = useWritePiece();
+  const { writePiece, loading, error } = useWritePiece(layout);
 
   return (
     <Container maxWidth="sm">
@@ -115,7 +158,7 @@ export default function EditorPage({}: AddPiecePageProps) {
               size="small"
               sx={{ boxShadow: 1 }}
               onClick={() => {
-                setFile(undefined);
+                setBlob(undefined);
                 setFileDataUri(undefined);
               }}
             >
@@ -235,7 +278,7 @@ export default function EditorPage({}: AddPiecePageProps) {
               variant="contained"
               startIcon={<AddIcon />}
               sx={{ py: 2 }}
-              onClick={() => file && writePiece(pieceDraft, file)}
+              onClick={() => blob && writePiece(pieceDraft, blob)}
             >
               Add piece
             </Button>

@@ -4,7 +4,6 @@ import { Stack } from "@mui/material";
 import colors from "../Colors";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import PortalHeader from "./portal/PortalHeader";
 import UnsavedChanges from "./portal/UnsavedChanges";
 
@@ -18,6 +17,10 @@ const StyledHiddenHeader = styled.div`
     margin-left: 8px;
     font-weight: 500;
   }
+`;
+
+const StyledImage = styled.img`
+  width: 234px;
 `;
 
 const reorder = (list, startIndex, endIndex) => {
@@ -47,8 +50,7 @@ const move = (source, destination, droppableSource, droppableDestination) => {
 
 const getItemStyle = (isDragging, draggableStyle) => ({
   userSelect: "none",
-  margin: "0 0 8px 0",
-
+  margin: "0 0 16px 0",
   ...draggableStyle,
 });
 
@@ -73,15 +75,6 @@ function layoutToArray(layoutAndPieces) {
   return [hidden, left, middle, right];
 }
 
-function arrayToLayout(array) {
-  return {
-    hidden: array[0],
-    left: array[1],
-    middle: array[2],
-    right: array[3],
-  };
-}
-
 function getImgSrcFromPieceId(pieceId, pieces) {
   const piece = pieces.find((p) => p.id === pieceId);
   return process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId;
@@ -90,7 +83,6 @@ function getImgSrcFromPieceId(pieceId, pieces) {
 export default function PortalPage({ layoutAndPieces }) {
   const propsLayoutArray = layoutToArray(layoutAndPieces);
 
-  const navigate = useNavigate();
   const [cloudLayout, setCloudLayout] = useState(propsLayoutArray);
   const [localLayout, setLocalLayout] = useState(propsLayoutArray);
 
@@ -157,6 +149,7 @@ export default function PortalPage({ layoutAndPieces }) {
                     <VisibilityOffIcon />
                     <div className="hidden-text">HIDDEN</div>
                   </StyledHiddenHeader>
+
                   {column.map((pieceId, index) => (
                     <Draggable
                       key={pieceId}
@@ -179,7 +172,7 @@ export default function PortalPage({ layoutAndPieces }) {
                               justifyContent: "space-around",
                             }}
                           >
-                            <img
+                            <StyledImage
                               src={getImgSrcFromPieceId(
                                 pieceId,
                                 layoutAndPieces.pieces

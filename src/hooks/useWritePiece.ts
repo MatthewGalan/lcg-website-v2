@@ -1,28 +1,11 @@
-import Jimp from "jimp";
 import { useCallback, useState } from "react";
 import Piece from "../types/Piece";
 import { v4 as uuidv4 } from "uuid";
 import lcgFetch from "../helpers/lcgFetch";
 import { useNavigate } from "react-router-dom";
+import Layout from "../types/Layout";
 
-const MAX_DIMENSION = 200;
-
-async function shrinkImage(image: File): Promise<Buffer> {
-  const arrayBuffer = await image.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const jimpImage = await Jimp.read(buffer);
-
-  if (
-    jimpImage.bitmap.width > MAX_DIMENSION ||
-    jimpImage.bitmap.height > MAX_DIMENSION
-  ) {
-    jimpImage.scaleToFit(MAX_DIMENSION, MAX_DIMENSION);
-  }
-
-  return jimpImage.getBufferAsync(Jimp.MIME_JPEG);
-}
-
-function fetchUploadImage(image: Buffer): Promise<Response> {
+function fetchUploadImage(image: Blob): Promise<Response> {
   return lcgFetch({
     endpoint: "/upload-image",
     method: "PUT",
@@ -50,19 +33,31 @@ function fetchWritePiece(
   });
 }
 
-export default function useWritePiece() {
+async function updateLayout(layout: Layout, pieceId: string) {
+  const updatedLayout = {
+    ...layout,
+    hidden: [pieceId, ...layout.hidden],
+  };
+
+  return await lcgFetch({
+    endpoint: "/write-layout",
+    method: "POST",
+    body: JSON.stringify(updatedLayout),
+  });
+}
+
+export default function useWritePiece(layout: Layout) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const writePiece = useCallback(
-    async (piece: Piece, image: File) => {
+    async (piece: Piece, blob: Blob) => {
       setError("");
       setLoading(true);
 
       // Upload image
-      const resizedImage = await shrinkImage(image);
-      const imageUploadResponse = await fetchUploadImage(resizedImage);
+      const imageUploadResponse = await fetchUploadImage(blob);
 
       // Handle image upload failure
       if (!imageUploadResponse.ok) {
@@ -87,12 +82,15 @@ export default function useWritePiece() {
         return;
       }
 
+      // Update layout
+      await updateLayout(layout, pieceId);
+
       // Everything is good
       setLoading(false);
 
       navigate("/portal", { state: pieceId });
     },
-    [navigate]
+    [navigate, layout]
   );
 
   return { writePiece, loading, error };

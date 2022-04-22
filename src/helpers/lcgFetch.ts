@@ -20,6 +20,7 @@ export default function lcgFetch(config: lcgFetchConfig) {
 
   // Attach Content-Type header if applicable
   if (config.contentType) {
+    // @ts-ignore
     fetchConfig.headers = {
       ...fetchConfig.headers,
       "Content-Type": config.contentType,
