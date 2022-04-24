@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Stack } from "@mui/material";
 import colors from "../Colors";
@@ -7,6 +7,7 @@ import styled from "styled-components";
 import PortalHeader from "./portal/PortalHeader";
 import UnsavedChanges from "./portal/UnsavedChanges";
 import { useNavigate } from "react-router-dom";
+import { useLayoutAndPieces } from "./LayoutAndPiecesProvider";
 
 const StyledHiddenHeader = styled.div`
   display: flex;
@@ -71,23 +72,28 @@ const getListStyle = (index) => {
   };
 };
 
-function layoutToArray(layoutAndPieces) {
-  const { hidden, left, middle, right } = layoutAndPieces.layout;
-  return [hidden, left, middle, right];
-}
-
 export function getImgSrcFromPieceId(pieceId, pieces) {
   const piece = pieces.find((p) => p.id === pieceId);
+
+  if (!piece) return "";
+
   return process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId;
 }
 
-export default function PortalPage({ layoutAndPieces }) {
+export default function PortalPage() {
   const navigate = useNavigate();
+  const { layout, pieces } = useLayoutAndPieces();
 
-  const propsLayoutArray = layoutToArray(layoutAndPieces);
+  const [cloudLayout, setCloudLayout] = useState([]);
+  const [localLayout, setLocalLayout] = useState([]);
 
-  const [cloudLayout, setCloudLayout] = useState(propsLayoutArray);
-  const [localLayout, setLocalLayout] = useState(propsLayoutArray);
+  useEffect(() => {
+    if (!layout) return;
+    const { hidden, left, middle, right } = layout;
+    const flatLayout = [hidden, left, middle, right];
+    setCloudLayout(flatLayout);
+    setLocalLayout(flatLayout);
+  }, [layout, setCloudLayout, setLocalLayout]);
 
   function onDragEnd(result) {
     const { source, destination } = result;
@@ -179,10 +185,7 @@ export default function PortalPage({ layoutAndPieces }) {
                             }
                           >
                             <StyledImage
-                              src={getImgSrcFromPieceId(
-                                pieceId,
-                                layoutAndPieces.pieces
-                              )}
+                              src={getImgSrcFromPieceId(pieceId, pieces)}
                               alt=""
                             />
                           </div>

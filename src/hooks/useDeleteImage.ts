@@ -1,6 +1,14 @@
 import { useCallback, useState } from "react";
 import lcgFetch, { FetchResult } from "../helpers/lcgFetch";
 
+export function fetchDeleteImage(imageId: string) {
+  return lcgFetch({
+    endpoint: "/delete-image",
+    method: "DELETE",
+    body: imageId,
+  });
+}
+
 export default function useDeleteImage(): [
   (imageId: string) => void,
   FetchResult
@@ -12,11 +20,7 @@ export default function useDeleteImage(): [
     setLoading(true);
     setError("");
 
-    const result = await lcgFetch({
-      endpoint: "/delete-image",
-      method: "DELETE",
-      body: imageId,
-    });
+    const result = await fetchDeleteImage(imageId);
 
     if (!result.ok) {
       setError(result.statusText);

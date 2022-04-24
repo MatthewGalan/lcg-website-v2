@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import lcgFetch from "../helpers/lcgFetch";
 import { useNavigate } from "react-router-dom";
 import Layout from "../types/Layout";
+import { fetchDeleteImage } from "./useDeleteImage";
+import { useLayoutAndPieces } from "../components/LayoutAndPiecesProvider";
 
 function fetchUploadImage(image: Blob): Promise<Response> {
   return lcgFetch({
@@ -33,23 +35,11 @@ function fetchWritePiece(
   });
 }
 
-async function updateLayout(layout: Layout, pieceId: string) {
-  const updatedLayout = {
-    ...layout,
-    hidden: [pieceId, ...layout.hidden],
-  };
-
-  return await lcgFetch({
-    endpoint: "/write-layout",
-    method: "POST",
-    body: JSON.stringify(updatedLayout),
-  });
-}
-
 export default function useWritePiece(layout: Layout) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const { setLayout, setPiece } = useLayoutAndPieces();
 
   const writePiece = useCallback(
     async (
@@ -65,7 +55,6 @@ export default function useWritePiece(layout: Layout) {
       if (options.blob) {
         const imageUploadResponse = await fetchUploadImage(options.blob);
 
-        // Handle image upload failure
         if (!imageUploadResponse.ok) {
           setError(imageUploadResponse.statusText);
           setLoading(false);
@@ -73,14 +62,23 @@ export default function useWritePiece(layout: Layout) {
           return;
         }
 
+        // Delete previous image if applicable
+        if (piece.pictureId) {
+          const imageDeleteResponse = await fetchDeleteImage(piece.pictureId);
+
+          if (!imageDeleteResponse.ok) {
+            setError(imageDeleteResponse.statusText);
+            setLoading(false);
+            return;
+          }
+        }
+
         pictureId = await imageUploadResponse.text();
       }
 
       if (!pictureId) {
         setLoading(false);
-        const error = "Either pieceId or pictureId must be provided";
-        setError(error);
-        console.error(error);
+        setError("Either pieceId or pictureId must be provided");
         return;
       }
 
@@ -101,8 +99,21 @@ export default function useWritePiece(layout: Layout) {
 
       // Update layout if its a new piece
       if (!options.pieceId) {
-        await updateLayout(layout, pieceId);
+        const updatedLayout = {
+          ...layout,
+          hidden: [pieceId, ...layout.hidden],
+        };
+
+        await lcgFetch({
+          endpoint: "/write-layout",
+          method: "POST",
+          body: JSON.stringify(updatedLayout),
+        });
+
+        setLayout(updatedLayout);
       }
+
+      setPiece(piece);
 
       // Everything is good
       setLoading(false);

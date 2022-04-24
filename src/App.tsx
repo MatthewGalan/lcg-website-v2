@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PortalPage from "./components/PortalPage";
 import LoginPage from "./components/LoginPage";
 import RequireAuth from "./components/RequireAuth";
-import useReadAllPieces from "./hooks/useReadAllPieces";
+import { LayoutAndPiecesProvider } from "./components/LayoutAndPiecesProvider";
 
 const theme = createTheme({
   typography: {
@@ -22,48 +22,33 @@ const theme = createTheme({
 });
 
 function App() {
-  /**
-   * TODO: convert useReadAllPieces so we call useEffect here instead of inside
-   *       of the hook. then have useWritePiece update layOutAndPieces. this will
-   *       prevent us from having to reload the page or call the API after a new
-   *       piece is added.
-   */
-
-  const {
-    loading: layoutAndPiecesLoading,
-    error: layoutAndPiecesError,
-    data: layoutAndPieces,
-  } = useReadAllPieces();
-
-  if (!layoutAndPieces) {
-    return null;
-  }
-
   return (
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<div>home page</div>} />
-          <Route
-            path="/portal"
-            element={
-              <RequireAuth>
-                <PortalPage layoutAndPieces={layoutAndPieces} />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/portal/editor/:id"
-            element={
-              <RequireAuth>
-                <EditorPage layoutAndPieces={layoutAndPieces} />
-              </RequireAuth>
-            }
-          />
-          <Route path="/portal/login" element={<LoginPage />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <LayoutAndPiecesProvider>
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<div>home page</div>} />
+            <Route
+              path="/portal"
+              element={
+                <RequireAuth>
+                  <PortalPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/portal/editor/:id"
+              element={
+                <RequireAuth>
+                  <EditorPage />
+                </RequireAuth>
+              }
+            />
+            <Route path="/portal/login" element={<LoginPage />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    </LayoutAndPiecesProvider>
   );
 }
 

@@ -28,11 +28,11 @@ import Piece from "../types/Piece";
 import LoadingSpinner from "./common/LoadingSpinner";
 import dataUrlToBlob from "../helpers/dataUrlToBlob";
 import { useNavigate, useParams } from "react-router-dom";
-import { LayoutAndPieces } from "../hooks/useReadAllPieces";
 import { getImgSrcFromPieceId } from "./PortalPage";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import useDeletePiece from "../hooks/useDeletePiece";
 import useDeleteImage from "../hooks/useDeleteImage";
+import { useLayoutAndPieces } from "./LayoutAndPiecesProvider";
 
 const MAX_DIMENSION = 200;
 
@@ -91,23 +91,18 @@ const startingPiece: Piece = {
   price: 0,
 };
 
-interface AddPiecePageProps {
-  layoutAndPieces: LayoutAndPieces;
-}
-
-export default function EditorPage({ layoutAndPieces }: AddPiecePageProps) {
+export default function EditorPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { layout, pieces } = useLayoutAndPieces();
 
   const newPiece = id === "new";
 
-  const initialDataUrl = newPiece
-    ? ""
-    : getImgSrcFromPieceId(id, layoutAndPieces.pieces);
+  const initialDataUrl = newPiece ? "" : getImgSrcFromPieceId(id, pieces);
 
   const initialDraft = newPiece
     ? startingPiece
-    : layoutAndPieces.pieces.find((p) => p.id === id) ?? startingPiece;
+    : pieces.find((p) => p.id === id) ?? startingPiece;
 
   const [blob, setBlob] = useState<Blob | undefined>(undefined);
   const [dataUrl, setDataUrl] = useState<string>(initialDataUrl);
@@ -164,7 +159,7 @@ export default function EditorPage({ layoutAndPieces }: AddPiecePageProps) {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  const { writePiece, loading, error } = useWritePiece(layoutAndPieces.layout);
+  const { writePiece, loading, error } = useWritePiece(layout);
   const [deletePiece, deletePieceResult] = useDeletePiece();
   const [deleteImage, deleteImageResult] = useDeleteImage();
 
@@ -175,17 +170,12 @@ export default function EditorPage({ layoutAndPieces }: AddPiecePageProps) {
     }
 
     if (newPiece) {
-      writePiece(pieceDraft, { blob });
+      await writePiece(pieceDraft, { blob });
       return;
     }
 
     // Existing piece
-
     const needToUpload = newPiece || dataUrl !== initialDataUrl;
-
-    if (needToUpload && pieceDraft.pictureId) {
-      await deleteImage(pieceDraft.pictureId);
-    }
 
     await writePiece(pieceDraft, {
       pieceId: id,
@@ -214,7 +204,7 @@ export default function EditorPage({ layoutAndPieces }: AddPiecePageProps) {
     }
 
     await deleteImage(pieceDraft.pictureId);
-    await deletePiece(id, layoutAndPieces.layout);
+    await deletePiece(id, layout);
   };
 
   return (

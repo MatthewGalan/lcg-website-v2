@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import lcgFetch, { FetchResult } from "../helpers/lcgFetch";
 import { useNavigate } from "react-router-dom";
 import Layout from "../types/Layout";
+import { useLayoutAndPieces } from "../components/LayoutAndPiecesProvider";
 
 export default function useDeletePiece(): [
   (pieceId: string, layout: Layout) => void,
@@ -10,6 +11,7 @@ export default function useDeletePiece(): [
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const { setLayout } = useLayoutAndPieces();
 
   const deletePiece = useCallback(
     async (pieceId: string, layout: Layout) => {
@@ -48,10 +50,12 @@ export default function useDeletePiece(): [
         return;
       }
 
+      setLayout(updatedLayout);
+
       setLoading(false);
       navigate("/portal");
     },
-    [navigate]
+    [navigate, setLayout]
   );
 
   return [deletePiece, { loading, error }];
