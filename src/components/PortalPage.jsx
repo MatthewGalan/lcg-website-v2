@@ -6,6 +6,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import styled from "styled-components";
 import PortalHeader from "./portal/PortalHeader";
 import UnsavedChanges from "./portal/UnsavedChanges";
+import { useNavigate } from "react-router-dom";
 
 const StyledHiddenHeader = styled.div`
   display: flex;
@@ -75,12 +76,14 @@ function layoutToArray(layoutAndPieces) {
   return [hidden, left, middle, right];
 }
 
-function getImgSrcFromPieceId(pieceId, pieces) {
+export function getImgSrcFromPieceId(pieceId, pieces) {
   const piece = pieces.find((p) => p.id === pieceId);
   return process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId;
 }
 
 export default function PortalPage({ layoutAndPieces }) {
+  const navigate = useNavigate();
+
   const propsLayoutArray = layoutToArray(layoutAndPieces);
 
   const [cloudLayout, setCloudLayout] = useState(propsLayoutArray);
@@ -171,6 +174,9 @@ export default function PortalPage({ layoutAndPieces }) {
                               display: "flex",
                               justifyContent: "space-around",
                             }}
+                            onClick={() =>
+                              navigate(`/portal/editor/${pieceId}`)
+                            }
                           >
                             <StyledImage
                               src={getImgSrcFromPieceId(

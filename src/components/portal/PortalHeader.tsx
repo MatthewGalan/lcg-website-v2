@@ -39,7 +39,7 @@ export default function PortalHeader() {
       <Stack direction="row" flex={1} justifyContent="flex-end" spacing={4}>
         <Button
           startIcon={<BrushIcon />}
-          onClick={() => navigate("/portal/editor")}
+          onClick={() => navigate("/portal/editor/new")}
         >
           Add piece
         </Button>

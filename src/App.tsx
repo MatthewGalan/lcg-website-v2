@@ -53,10 +53,10 @@ function App() {
             }
           />
           <Route
-            path="/portal/editor"
+            path="/portal/editor/:id"
             element={
               <RequireAuth>
-                <EditorPage layout={layoutAndPieces.layout} />
+                <EditorPage layoutAndPieces={layoutAndPieces} />
               </RequireAuth>
             }
           />

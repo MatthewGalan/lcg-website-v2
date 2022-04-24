@@ -33,6 +33,7 @@ export default function LoginPage({}: LoginPageProps) {
           label="Password"
           type="password"
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && login(username, password)}
         />
         {loading ? (
           <StyledLoadingSpinner />

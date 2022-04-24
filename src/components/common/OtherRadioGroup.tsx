@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FormControl,
   FormControlLabel,
@@ -13,16 +13,17 @@ import {
 interface OtherRadioGroupProps {
   label: string;
   options: string[];
+  value: string;
   onChange: (value: string) => void;
 }
 
 export default function OtherRadioGroup({
   label,
   options,
+  value,
   onChange,
 }: OtherRadioGroupProps) {
-  const [radioValue, setRadioValue] = useState<string>(options[0]);
-  const [otherValue, setOtherValue] = useState<string>("");
+  const radioValue = options.includes(value) ? value : "Other";
 
   return (
     <FormControl component="fieldset">
@@ -30,10 +31,9 @@ export default function OtherRadioGroup({
       <RadioGroup
         aria-label={label}
         value={radioValue}
-        onChange={(e) => {
-          setRadioValue(e.target.value);
-          onChange(e.target.value === "Other" ? otherValue : e.target.value);
-        }}
+        onChange={(e) =>
+          e.target.value === "Other" ? onChange("") : onChange(e.target.value)
+        }
       >
         {options.map((option, index) => (
           <FormControlLabel
@@ -53,11 +53,8 @@ export default function OtherRadioGroup({
                 <TextField
                   label=""
                   size="small"
-                  value={otherValue}
-                  onChange={(e) => {
-                    setOtherValue(e.target.value);
-                    onChange(e.target.value);
-                  }}
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
                 />
               )}
             </Stack>

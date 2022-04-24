@@ -1,13 +1,19 @@
 import Cookies from "js-cookie";
 
-export interface lcgFetchConfig {
+export interface FetchConfig {
   endpoint: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
   contentType?: string;
   body?: any;
 }
 
-export default function lcgFetch(config: lcgFetchConfig) {
+export interface FetchResult {
+  loading: boolean;
+  error: string;
+  data?: any;
+}
+
+export default async function lcgFetch(config: FetchConfig) {
   const url = process.env.REACT_APP_INVOKE_URL + config.endpoint;
   const token = Cookies.get("lcg-id-token") ?? "";
 
@@ -32,5 +38,12 @@ export default function lcgFetch(config: lcgFetchConfig) {
     fetchConfig.body = config.body;
   }
 
-  return fetch(url, fetchConfig);
+  const response = await fetch(url, fetchConfig);
+
+  if (response.status === 401) {
+    Cookies.set("lcg-id-token", "");
+    window.location.reload();
+  }
+
+  return response;
 }

@@ -52,23 +52,40 @@ export default function useWritePiece(layout: Layout) {
   const [error, setError] = useState<string>("");
 
   const writePiece = useCallback(
-    async (piece: Piece, blob: Blob) => {
+    async (
+      piece: Piece,
+      options: { blob?: Blob; pieceId?: string; pictureId?: string }
+    ) => {
       setError("");
       setLoading(true);
 
-      // Upload image
-      const imageUploadResponse = await fetchUploadImage(blob);
+      let pictureId = options.pictureId;
 
-      // Handle image upload failure
-      if (!imageUploadResponse.ok) {
-        setError(imageUploadResponse.statusText);
+      // Upload image if applicable
+      if (options.blob) {
+        const imageUploadResponse = await fetchUploadImage(options.blob);
+
+        // Handle image upload failure
+        if (!imageUploadResponse.ok) {
+          setError(imageUploadResponse.statusText);
+          setLoading(false);
+          window.alert("Failed to upload image.");
+          return;
+        }
+
+        pictureId = await imageUploadResponse.text();
+      }
+
+      if (!pictureId) {
         setLoading(false);
+        const error = "Either pieceId or pictureId must be provided";
+        setError(error);
+        console.error(error);
         return;
       }
 
       // Write piece
-      const pictureId = await imageUploadResponse.text();
-      const pieceId = uuidv4();
+      const pieceId = options.pieceId ?? uuidv4();
       const writePieceResponse = await fetchWritePiece(
         pieceId,
         piece,
@@ -82,8 +99,10 @@ export default function useWritePiece(layout: Layout) {
         return;
       }
 
-      // Update layout
-      await updateLayout(layout, pieceId);
+      // Update layout if its a new piece
+      if (!options.pieceId) {
+        await updateLayout(layout, pieceId);
+      }
 
       // Everything is good
       setLoading(false);

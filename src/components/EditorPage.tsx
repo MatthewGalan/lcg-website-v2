@@ -18,14 +18,21 @@ import {
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useDropzone } from "react-dropzone";
 import Colors from "../Colors";
 import OtherRadioGroup from "./common/OtherRadioGroup";
 import useWritePiece from "../hooks/useWritePiece";
 import Piece from "../types/Piece";
 import LoadingSpinner from "./common/LoadingSpinner";
-import Layout from "../types/Layout";
 import dataUrlToBlob from "../helpers/dataUrlToBlob";
+import { useNavigate, useParams } from "react-router-dom";
+import { LayoutAndPieces } from "../hooks/useReadAllPieces";
+import { getImgSrcFromPieceId } from "./PortalPage";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import useDeletePiece from "../hooks/useDeletePiece";
+import useDeleteImage from "../hooks/useDeleteImage";
 
 const MAX_DIMENSION = 200;
 
@@ -85,14 +92,27 @@ const startingPiece: Piece = {
 };
 
 interface AddPiecePageProps {
-  layout: Layout;
+  layoutAndPieces: LayoutAndPieces;
 }
 
-export default function EditorPage({ layout }: AddPiecePageProps) {
-  const [blob, setBlob] = useState<Blob | undefined>(undefined);
-  const [fileDataUri, setFileDataUri] = useState<any>();
+export default function EditorPage({ layoutAndPieces }: AddPiecePageProps) {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [pieceDraft, setPieceDraft] = useState<Piece>(startingPiece);
+  const newPiece = id === "new";
+
+  const initialDataUrl = newPiece
+    ? ""
+    : getImgSrcFromPieceId(id, layoutAndPieces.pieces);
+
+  const initialDraft = newPiece
+    ? startingPiece
+    : layoutAndPieces.pieces.find((p) => p.id === id) ?? startingPiece;
+
+  const [blob, setBlob] = useState<Blob | undefined>(undefined);
+  const [dataUrl, setDataUrl] = useState<string>(initialDataUrl);
+
+  const [pieceDraft, setPieceDraft] = useState<Piece>(initialDraft);
 
   const onDrop = useCallback(([selectedFile]: File[]) => {
     if (!selectedFile) return;
@@ -132,7 +152,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
         const dataUrl = canvas.toDataURL("image/jpeg");
         const newBlob = dataUrlToBlob(dataUrl);
 
-        setFileDataUri(dataUrl);
+        setDataUrl(dataUrl);
         setBlob(newBlob);
       };
 
@@ -144,22 +164,85 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  const { writePiece, loading, error } = useWritePiece(layout);
+  const { writePiece, loading, error } = useWritePiece(layoutAndPieces.layout);
+  const [deletePiece, deletePieceResult] = useDeletePiece();
+  const [deleteImage, deleteImageResult] = useDeleteImage();
+
+  const handleSaveClicked = async () => {
+    if (!blob && !pieceDraft.pictureId) {
+      window.alert("Please select an image.");
+      return;
+    }
+
+    if (newPiece) {
+      writePiece(pieceDraft, { blob });
+      return;
+    }
+
+    // Existing piece
+
+    const needToUpload = newPiece || dataUrl !== initialDataUrl;
+
+    if (needToUpload && pieceDraft.pictureId) {
+      await deleteImage(pieceDraft.pictureId);
+    }
+
+    await writePiece(pieceDraft, {
+      pieceId: id,
+      blob: needToUpload ? blob : undefined,
+      pictureId: needToUpload ? undefined : pieceDraft.pictureId,
+    });
+  };
+
+  const handleDeleteClicked = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${pieceDraft.title}"? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    if (!pieceDraft.pictureId) {
+      console.error("Cannot delete piece because pictureId is undefined");
+      return;
+    }
+
+    if (!id) {
+      console.error("Cannot delete piece because ID is undefined");
+      return;
+    }
+
+    await deleteImage(pieceDraft.pictureId);
+    await deletePiece(id, layoutAndPieces.layout);
+  };
 
   return (
     <Container maxWidth="sm">
-      <Stack spacing={4} sx={{ mb: 8 }}>
-        <h1>Add a piece</h1>
+      <Stack spacing={4} sx={{ mb: 8, mt: 4 }}>
+        <Stack spacing={2}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate("/portal")}
+            sx={{ alignSelf: "flex-start" }}
+          >
+            Back to layout
+          </Button>
 
-        {fileDataUri && (
+          <Typography variant="h1" fontSize={32} fontWeight={700}>
+            {newPiece ? "Add a piece" : "Edit piece"}
+          </Typography>
+        </Stack>
+
+        {dataUrl && (
           <StyledImagePreview>
-            <img className="art" src={fileDataUri} alt="Artwork preview" />
+            <img className="art" src={dataUrl} alt="Artwork preview" />
             <IconButton
               size="small"
               sx={{ boxShadow: 1 }}
               onClick={() => {
                 setBlob(undefined);
-                setFileDataUri(undefined);
+                setDataUrl("");
               }}
             >
               <ClearIcon />
@@ -167,7 +250,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
           </StyledImagePreview>
         )}
 
-        {!fileDataUri && (
+        {!dataUrl && (
           <StyledDropzone {...getRootProps()} isDragActive={isDragActive}>
             <FileUploadIcon />
             <input {...getInputProps()} />
@@ -177,6 +260,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
 
         <TextField
           label="Title"
+          value={pieceDraft.title}
           onChange={(e) =>
             setPieceDraft({ ...pieceDraft, title: e.target.value })
           }
@@ -186,6 +270,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
           label="Story"
           multiline
           rows={4}
+          value={pieceDraft.story}
           onChange={(e) =>
             setPieceDraft({ ...pieceDraft, story: e.target.value })
           }
@@ -196,6 +281,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
             label="Width"
             sx={{ width: 100 }}
             type="number"
+            value={pieceDraft.width}
             onChange={(e) =>
               setPieceDraft({ ...pieceDraft, width: parseInt(e.target.value) })
             }
@@ -205,6 +291,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
             label="Height"
             sx={{ width: 100 }}
             type="number"
+            value={pieceDraft.height}
             onChange={(e) =>
               setPieceDraft({ ...pieceDraft, height: parseInt(e.target.value) })
             }
@@ -215,6 +302,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
         <OtherRadioGroup
           label="Medium"
           options={["Oil", "Pastel", "Watercolor"]}
+          value={pieceDraft.medium}
           onChange={(value) => setPieceDraft({ ...pieceDraft, medium: value })}
         />
 
@@ -226,6 +314,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
             "Sanded paper",
             "Watercolor paper",
           ]}
+          value={pieceDraft.substrate}
           onChange={(value) =>
             setPieceDraft({ ...pieceDraft, substrate: value })
           }
@@ -258,6 +347,7 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
             label="Price"
             type="number"
             sx={{ width: "50%" }}
+            value={pieceDraft.price}
             onChange={(e) =>
               setPieceDraft({ ...pieceDraft, price: parseInt(e.target.value) })
             }
@@ -269,19 +359,31 @@ export default function EditorPage({ layout }: AddPiecePageProps) {
           />
         )}
 
-        {loading ? (
+        {loading || deleteImageResult.loading || deletePieceResult.loading ? (
           <StyledLoadingSpinner />
         ) : (
-          <Stack sx={{ pt: 4 }}>
+          <Stack sx={{ pt: 4 }} spacing={2}>
             <Button
               size="large"
               variant="contained"
-              startIcon={<AddIcon />}
+              startIcon={newPiece ? <AddIcon /> : <SaveIcon />}
               sx={{ py: 2 }}
-              onClick={() => blob && writePiece(pieceDraft, blob)}
+              onClick={handleSaveClicked}
             >
-              Add piece
+              {newPiece ? "Add piece" : "Save piece"}
             </Button>
+            {!newPiece && (
+              <Button
+                color="error"
+                size="large"
+                startIcon={<DeleteIcon />}
+                sx={{ py: 2 }}
+                variant="outlined"
+                onClick={handleDeleteClicked}
+              >
+                Delete piece
+              </Button>
+            )}
           </Stack>
         )}
 
