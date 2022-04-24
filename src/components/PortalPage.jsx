@@ -13,6 +13,7 @@ const StyledHiddenHeader = styled.div`
   display: flex;
   color: ${colors.red};
   margin-bottom: 8px;
+  margin-top: -33px;
   opacity: ${(props) => (props.index === 0 ? 1 : 0)};
 
   .hidden-text {
@@ -22,7 +23,7 @@ const StyledHiddenHeader = styled.div`
 `;
 
 const StyledImage = styled.img`
-  width: 234px;
+  width: 250px;
 `;
 
 const reorder = (list, startIndex, endIndex) => {
@@ -61,14 +62,17 @@ const getListStyle = (index) => {
     index === 0
       ? {
           border: `1px solid ${colors.red}`,
+          padding: 16,
+          marginRight: 48,
           background: "#efe2df",
         }
       : {};
 
   return {
-    padding: 8,
     width: 250,
+    marginRight: 16,
     ...hiddenListStyle,
+    paddingTop: 41,
   };
 };
 
@@ -193,6 +197,7 @@ export default function PortalPage() {
                       )}
                     </Draggable>
                   ))}
+
                   {provided.placeholder}
                 </div>
               )}

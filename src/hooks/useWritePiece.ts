@@ -90,6 +90,9 @@ export default function useWritePiece(layout: Layout) {
         pictureId
       );
 
+      // Save in local state so we don't have to refresh
+      setPiece({ ...piece, id: pieceId, pictureId });
+
       // Handle piece write failure
       if (!writePieceResponse.ok) {
         setError(writePieceResponse.statusText);
@@ -112,8 +115,6 @@ export default function useWritePiece(layout: Layout) {
 
         setLayout(updatedLayout);
       }
-
-      setPiece(piece);
 
       // Everything is good
       setLoading(false);
