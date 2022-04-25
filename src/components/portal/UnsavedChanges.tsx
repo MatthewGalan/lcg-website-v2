@@ -5,6 +5,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ErrorIcon from "@mui/icons-material/Error";
 import lcgFetch from "../../helpers/lcgFetch";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
 
 enum SaveState {
   NONE,
@@ -26,25 +27,29 @@ export default function UnsavedChanges({
 }: UnsavedChangesProps) {
   const [saveState, setSaveState] = useState<SaveState>(SaveState.NONE);
   const [autoHidden, setAutoHidden] = useState<boolean>(false);
+  const { setLayout } = useLayoutAndPieces();
 
   useEffect(() => setAutoHidden(false), [localLayout, cloudLayout]);
 
   function saveLayout() {
     setSaveState(SaveState.SAVING);
 
+    const restructuredLayout = {
+      hidden: localLayout[0],
+      left: localLayout[1],
+      middle: localLayout[2],
+      right: localLayout[3],
+    };
+
     lcgFetch({
       endpoint: "/write-layout",
       method: "POST",
-      body: JSON.stringify({
-        hidden: localLayout[0],
-        left: localLayout[1],
-        middle: localLayout[2],
-        right: localLayout[3],
-      }),
+      body: JSON.stringify(restructuredLayout),
     })
       .then((response) => {
         if (response.ok) {
           setSaveState(SaveState.SUCCESS);
+          setLayout(restructuredLayout);
         } else {
           console.log(response.statusText);
           setSaveState(SaveState.FAILURE);
@@ -58,7 +63,11 @@ export default function UnsavedChanges({
 
   return (
     <Snackbar
-      open={hasUnsavedChanges && !autoHidden}
+      open={
+        hasUnsavedChanges ||
+        saveState === SaveState.SAVING ||
+        (saveState === SaveState.SUCCESS && !autoHidden)
+      }
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       autoHideDuration={saveState === SaveState.SUCCESS ? 3000 : null}
       onClose={(_, reason) => {

@@ -21,20 +21,20 @@ import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDropzone } from "react-dropzone";
-import Colors from "../Colors";
-import OtherRadioGroup from "./common/OtherRadioGroup";
-import useWritePiece from "../hooks/useWritePiece";
-import Piece from "../types/Piece";
-import LoadingSpinner from "./common/LoadingSpinner";
-import dataUrlToBlob from "../helpers/dataUrlToBlob";
+import Colors from "../../Colors";
+import OtherRadioGroup from "../common/OtherRadioGroup";
+import useWritePiece from "../../hooks/useWritePiece";
+import Piece from "../../types/Piece";
+import LoadingSpinner from "../common/LoadingSpinner";
+import dataUrlToBlob from "../../helpers/dataUrlToBlob";
 import { useNavigate, useParams } from "react-router-dom";
 import { getImgSrcFromPieceId } from "./PortalPage";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import useDeletePiece from "../hooks/useDeletePiece";
-import useDeleteImage from "../hooks/useDeleteImage";
-import { useLayoutAndPieces } from "./LayoutAndPiecesProvider";
+import useDeletePiece from "../../hooks/useDeletePiece";
+import useDeleteImage from "../../hooks/useDeleteImage";
+import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
 
-const MAX_DIMENSION = 200;
+const MAX_DIMENSION = 1024;
 
 const StyledDropzone = styled.div<{ isDragActive: boolean }>`
   border: 1px dashed ${Colors.green};
@@ -124,6 +124,7 @@ export default function EditorPage() {
 
       image.onload = () => {
         const canvas = document.createElement("canvas");
+
         let width = image.width;
         let height = image.height;
 
@@ -142,7 +143,14 @@ export default function EditorPage() {
         canvas.width = width;
         canvas.height = height;
 
-        canvas.getContext("2d")?.drawImage(image, 0, 0, width, height);
+        const context = canvas.getContext("2d");
+
+        if (!context) throw new Error("Failed to get canvas context");
+
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+
+        context.drawImage(image, 0, 0, width, height);
 
         const dataUrl = canvas.toDataURL("image/jpeg");
         const newBlob = dataUrlToBlob(dataUrl);
@@ -300,7 +308,7 @@ export default function EditorPage() {
           label="Substrate"
           options={[
             "Stretched canvas",
-            "Masonite panel",
+            "Panel",
             "Sanded paper",
             "Watercolor paper",
           ]}

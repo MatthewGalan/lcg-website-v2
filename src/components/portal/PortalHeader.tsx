@@ -6,6 +6,7 @@ import MiniLogoSVG from "../../assets/mini_logo.svg";
 import BrushIcon from "@mui/icons-material/Brush";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const StyledLogoHeader = styled.div`
   display: flex;
@@ -43,7 +44,15 @@ export default function PortalHeader() {
         >
           Add piece
         </Button>
-        <Button startIcon={<LogoutIcon />}>Logout</Button>
+        <Button
+          startIcon={<LogoutIcon />}
+          onClick={() => {
+            Cookies.remove("lcg-id-token");
+            navigate("/portal/login");
+          }}
+        >
+          Logout
+        </Button>
       </Stack>
     </Stack>
   );

@@ -43,9 +43,13 @@ export default function useLogin() {
         onSuccess: (e) => {
           setLoading(false);
 
+          const inOneHour = new Date(new Date().getTime() + 59 * 60 * 1000);
+
           // Store Cognito ID token as a cookie
           const idToken = e.getIdToken();
-          Cookies.set("lcg-id-token", idToken.getJwtToken(), { expires: 1 });
+          Cookies.set("lcg-id-token", idToken.getJwtToken(), {
+            expires: inOneHour,
+          });
 
           // Send the user back to where they were before the login page
           let from = (location.state as any)?.from?.pathname || "/portal";

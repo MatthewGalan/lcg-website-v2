@@ -1,11 +1,13 @@
 import React from "react";
-import EditorPage from "./components/EditorPage";
+import EditorPage from "./components/portal/EditorPage";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import PortalPage from "./components/PortalPage";
+import PortalPage from "./components/portal/PortalPage";
 import LoginPage from "./components/LoginPage";
 import RequireAuth from "./components/RequireAuth";
 import { LayoutAndPiecesProvider } from "./components/LayoutAndPiecesProvider";
+import HomePage from "./components/home/HomePage";
+import ViewPage from "./components/view/ViewPage";
 
 const theme = createTheme({
   typography: {
@@ -27,7 +29,10 @@ function App() {
       <ThemeProvider theme={theme}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<div>home page</div>} />
+            <Route path="/" element={<HomePage />} />
+
+            <Route path="/view/:id" element={<ViewPage />} />
+
             <Route
               path="/portal"
               element={
@@ -36,6 +41,7 @@ function App() {
                 </RequireAuth>
               }
             />
+
             <Route
               path="/portal/editor/:id"
               element={
@@ -44,6 +50,7 @@ function App() {
                 </RequireAuth>
               }
             />
+
             <Route path="/portal/login" element={<LoginPage />} />
           </Routes>
         </BrowserRouter>

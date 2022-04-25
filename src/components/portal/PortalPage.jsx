@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Stack } from "@mui/material";
-import colors from "../Colors";
+import colors from "../../Colors";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import styled from "styled-components";
-import PortalHeader from "./portal/PortalHeader";
-import UnsavedChanges from "./portal/UnsavedChanges";
+import PortalHeader from "./PortalHeader";
+import UnsavedChanges from "./UnsavedChanges";
 import { useNavigate } from "react-router-dom";
-import { useLayoutAndPieces } from "./LayoutAndPiecesProvider";
+import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
 
 const StyledHiddenHeader = styled.div`
   display: flex;
@@ -152,7 +152,7 @@ export default function PortalPage() {
         <DragDropContext onDragEnd={onDragEnd}>
           {localLayout.map((column, index) => (
             <Droppable key={index} droppableId={"" + index}>
-              {(provided, snapshot) => (
+              {(provided) => (
                 <div
                   ref={provided.innerRef}
                   style={getListStyle(index)}
