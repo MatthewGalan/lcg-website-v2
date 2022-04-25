@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Modal, Stack } from "@mui/material";
 import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
 import ViewArt from "./ViewArt";
@@ -7,6 +7,7 @@ import styled from "styled-components";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import LogoSVG from "../../assets/logo.svg";
+import FixedHeader from "./FixedHeader";
 
 const StyledModalContents = styled.div`
   position: absolute;
@@ -58,18 +59,32 @@ const StyledModalContents = styled.div`
 
 export default function ViewPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { layout, pieces } = useLayoutAndPieces();
   const [modalOpen, setModalOpen] = useState(false);
 
   const flatLayout = [...layout.left, ...layout.middle, ...layout.right];
 
-  const flatPieces = flatLayout.map((pieceId) =>
+  let flatPieces = flatLayout.map((pieceId) =>
     pieces.find((p) => p.id === pieceId)
   );
 
+  const startIndex = flatPieces.findIndex((p) => p?.id === id);
+
+  if (!startIndex) {
+    console.error("Could not find piece ID " + id);
+    navigate("/");
+  }
+
+  flatPieces = [
+    ...flatPieces.slice(startIndex),
+    ...flatPieces.slice(0, startIndex),
+  ];
+
   return (
     <div>
-      <Stack>
+      <FixedHeader />
+      <Stack pt={16}>
         {flatPieces.map(
           (piece) =>
             piece && (

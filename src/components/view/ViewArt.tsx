@@ -13,6 +13,10 @@ const StyledDiv = styled.div<{ $width: number; $height: number }>`
   margin-bottom: 200px;
   padding-bottom: 32px;
 
+  @media only screen and (max-width: 769px) {
+    margin-bottom: 100px;
+  }
+
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
