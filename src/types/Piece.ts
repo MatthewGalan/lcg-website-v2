@@ -5,6 +5,8 @@ export default interface Piece {
   story: string;
   width: number;
   height: number;
+  imageWidth: number;
+  imageHeight: number;
   medium: string;
   substrate: string;
   availability: string;

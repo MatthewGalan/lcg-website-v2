@@ -85,6 +85,8 @@ const startingPiece: Piece = {
   story: "",
   width: 0,
   height: 0,
+  imageWidth: 0,
+  imageHeight: 0,
   medium: "Oil",
   substrate: "Stretched canvas",
   availability: "Available",
@@ -152,11 +154,16 @@ export default function EditorPage() {
 
         context.drawImage(image, 0, 0, width, height);
 
-        const dataUrl = canvas.toDataURL("image/jpeg");
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
         const newBlob = dataUrlToBlob(dataUrl);
 
         setDataUrl(dataUrl);
         setBlob(newBlob);
+        setPieceDraft({
+          ...pieceDraft,
+          imageWidth: Math.round(width),
+          imageHeight: Math.round(height),
+        });
       };
 
       // @ts-ignore

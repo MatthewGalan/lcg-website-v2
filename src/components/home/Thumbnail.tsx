@@ -3,18 +3,25 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Piece from "../../types/Piece";
 
-const StyledLink = styled(Link)<{ $isAvailable: boolean }>`
+const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
   position: relative;
 
   margin-bottom: 16px;
 
-  img {
+  .image-container {
+    position: relative;
     width: 100%;
-    height: auto;
-    display: block;
-    cursor: pointer;
+    padding-top: ${(props) => props.$topPadding}%;
+    background-color: #d0d0d0;
 
-    transition: margin 0.25s, box-shadow 0.25s;
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+
+      transition: margin 0.25s, box-shadow 0.25s;
+    }
   }
 
   .availability {
@@ -38,9 +45,14 @@ const StyledLink = styled(Link)<{ $isAvailable: boolean }>`
       height: 8px;
       margin-right: 8px;
       border-radius: 50%;
-      background-color: #eb4928;
+
+      background-color: ${(props) =>
+        props.$available ? "#eb4928" : "#789f3f"};
+
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.33);
       transition: background-color 0.25s, opacity 0.5s;
+
+      ${(props) => (props.$available ? "" : "z-index: -1;")}
     }
   }
 
@@ -48,7 +60,7 @@ const StyledLink = styled(Link)<{ $isAvailable: boolean }>`
   @media only screen and (min-width: 769px) {
     &:hover {
       // Lift up even more to make room for the dot description to come down
-      padding-bottom: ${(props) => (props.$isAvailable ? 16 : 0)}px;
+      padding-bottom: 16px;
 
       img {
         margin-top: -8px;
@@ -58,10 +70,6 @@ const StyledLink = styled(Link)<{ $isAvailable: boolean }>`
 
       .availability {
         bottom: 0;
-
-        .dot {
-          background-color: #be4f38;
-        }
       }
     }
   }
@@ -89,21 +97,26 @@ interface ThumbnailProps {
 }
 
 export default function Thumbnail({ piece }: ThumbnailProps) {
-  const isAvailable = piece.availability !== "Available";
+  const available = piece.availability !== "Available";
 
   return (
-    <StyledLink to={`/view/${piece.id}`} $isAvailable={isAvailable}>
-      <img
-        src={process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId}
-        alt={piece.title}
-      />
+    <StyledLink
+      to={`/view/${piece.id}`}
+      $available={available}
+      $topPadding={(100 * piece.imageHeight) / piece.imageWidth}
+    >
+      <div className="image-container">
+        <img
+          src={process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId}
+          alt={piece.title}
+          loading="lazy"
+        />
+      </div>
 
-      {isAvailable && (
-        <div className="availability">
-          <div className="dot" />
-          <span>{piece.availability}</span>
-        </div>
-      )}
+      <div className="availability">
+        <div className="dot" />
+        <span>{piece.availability}</span>
+      </div>
     </StyledLink>
   );
 }

@@ -20,10 +20,10 @@ const StyledGallery = styled.div`
   flex-flow: row nowrap;
   align-items: flex-start;
   justify-content: center;
-  margin: 0 8px;
+  padding: 0 8px;
 
   @media only screen and (max-width: 768px) {
-    margin: 0 4px;
+    padding: 0 4px;
   }
 `;
 

@@ -90,6 +90,7 @@ export default function ViewArt({ piece, openModal }: ViewArtProps) {
         <img
           src={process.env.REACT_APP_BUCKET_URL + "/" + piece.pictureId}
           alt={piece.title}
+          loading="lazy"
           ref={ref}
           onLoad={calcDimensions}
         />
