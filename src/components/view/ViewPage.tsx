@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Modal, Stack } from "@mui/material";
 import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
 import ViewArt from "./ViewArt";
@@ -59,7 +59,6 @@ const StyledModalContents = styled.div`
 
 export default function ViewPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { layout, pieces } = useLayoutAndPieces();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -69,12 +68,9 @@ export default function ViewPage() {
     pieces.find((p) => p.id === pieceId)
   );
 
-  const startIndex = flatPieces.findIndex((p) => p?.id === id);
+  let startIndex = flatPieces.findIndex((p) => p?.id === id);
 
-  if (!startIndex) {
-    console.error("Could not find piece ID " + id);
-    navigate("/");
-  }
+  if (startIndex === -1) startIndex = 0;
 
   flatPieces = [
     ...flatPieces.slice(startIndex),
