@@ -45,14 +45,13 @@ const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
       height: 8px;
       margin-right: 8px;
       border-radius: 50%;
+      z-index: -1;
 
       background-color: ${(props) =>
         props.$available ? "#eb4928" : "#789f3f"};
 
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.33);
       transition: background-color 0.25s, opacity 0.5s;
-
-      ${(props) => (props.$available ? "" : "z-index: -1;")}
     }
   }
 
