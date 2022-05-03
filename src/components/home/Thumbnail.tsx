@@ -12,15 +12,15 @@ const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
     position: relative;
     width: 100%;
     padding-top: ${(props) => props.$topPadding}%;
-    background-color: #d0d0d0;
+    background-color: #eceae7;
+    z-index: 1;
+    transition: margin 0.25s, box-shadow 0.25s;
 
     img {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-
-      transition: margin 0.25s, box-shadow 0.25s;
     }
   }
 
@@ -36,7 +36,6 @@ const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
     transition: bottom 0.25s;
 
     span {
-      z-index: -1;
       text-transform: uppercase;
     }
 
@@ -45,13 +44,11 @@ const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
       height: 8px;
       margin-right: 8px;
       border-radius: 50%;
-      z-index: -1;
 
       background-color: ${(props) =>
         props.$available ? "#eb4928" : "#789f3f"};
 
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.33);
-      transition: background-color 0.25s, opacity 0.5s;
     }
   }
 
@@ -61,7 +58,7 @@ const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
       // Lift up even more to make room for the dot description to come down
       padding-bottom: 16px;
 
-      img {
+      .image-container {
         margin-top: -8px;
         margin-bottom: 8px;
         box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
@@ -75,17 +72,6 @@ const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
 
   @media only screen and (max-width: 768px) {
     margin-bottom: 8px;
-
-    .availability {
-      .dot {
-        margin: 0;
-      }
-
-      // Don't show dot descriptions on mobile
-      span {
-        display: none;
-      }
-    }
   }
 
   transition: padding 0.25s;
