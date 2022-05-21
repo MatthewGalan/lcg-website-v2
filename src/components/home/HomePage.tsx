@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Thumbnail from "./Thumbnail";
 import LogoSVG from "../../assets/logo.svg";
 import LoadingSpinner from "../common/LoadingSpinner";
+import AboutMe from "./AboutMe";
 
 const StyledLogo = styled.div`
   margin: 64px auto 16px auto;
@@ -41,7 +42,7 @@ const StyledGallery = styled.div`
   flex-flow: row nowrap;
   align-items: flex-start;
   justify-content: center;
-  padding: 16px 8px 0 8px;
+  padding: 32px 8px 0 8px;
 
   @media only screen and (max-width: 768px) {
     padding: 8px 4px 0 4px;
@@ -91,6 +92,7 @@ export default function HomePage() {
 
       {pieces.length ? (
         <Box sx={{ backgroundColor: "white" }}>
+          <AboutMe />
           <StyledGallery>
             {flatLayout.map((col, i) => (
               <StyledColumn key={i}>
