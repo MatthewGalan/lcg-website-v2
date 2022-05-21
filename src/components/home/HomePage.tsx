@@ -42,7 +42,8 @@ const StyledGallery = styled.div`
   flex-flow: row nowrap;
   align-items: flex-start;
   justify-content: center;
-  padding: 32px 8px 0 8px;
+  padding: 32px 8px 24px 8px;
+  background-color: white;
 
   @media only screen and (max-width: 768px) {
     padding: 8px 4px 0 4px;
@@ -91,8 +92,7 @@ export default function HomePage() {
       </StyledLogo>
 
       {pieces.length ? (
-        <Box sx={{ backgroundColor: "white" }}>
-          <AboutMe />
+        <Box>
           <StyledGallery>
             {flatLayout.map((col, i) => (
               <StyledColumn key={i}>
@@ -102,6 +102,7 @@ export default function HomePage() {
               </StyledColumn>
             ))}
           </StyledGallery>
+          <AboutMe />
           <StyledFooter>
             © {new Date().getFullYear()} All work on this website may not be
             copied or reproduced in any format without prior consent of Lori

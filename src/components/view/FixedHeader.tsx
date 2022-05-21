@@ -18,7 +18,7 @@ const StyledDiv = styled.div`
 
   .mini-logo {
     cursor: pointer;
-    height: 36px;
+    height: 80px;
     position: absolute;
     left: 50%;
     top: 8px;
