@@ -21,10 +21,11 @@ const StyledDiv = styled.div`
   }
 
   @media only screen and (max-width: 768px) {
-    padding: 6px 16px 4px 16px;
+    width: calc(100% - 16px);
+    padding: 4px 8px 2px 8px;
 
     .mini-logo {
-      height: 64px;
+      height: 70px;
     }
   }
 `;

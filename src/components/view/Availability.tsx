@@ -33,7 +33,7 @@ export default function Availability({ piece, openModal }: AvailabilityProps) {
   return (
     <Stack direction="row" alignItems="center" pt={2}>
       <StyledDot />
-      <Typography sx={{ fontWeight: 500, lineHeight: 1, opacity: 0.6 }}>
+      <Typography sx={{ lineHeight: 1, opacity: 0.6 }}>
         {piece.availability}
       </Typography>
     </Stack>
