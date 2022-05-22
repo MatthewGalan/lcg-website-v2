@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Piece from "../../types/Piece";
+import { Typography } from "@mui/material";
 
 const StyledLink = styled(Link)<{ $available: boolean; $topPadding: number }>`
   position: relative;
@@ -100,7 +101,13 @@ export default function Thumbnail({ piece }: ThumbnailProps) {
 
       <div className="availability">
         <div className="dot" />
-        <span>{piece.availability}</span>
+        <span>
+          {piece.availability}
+          <Typography sx={{ opacity: 0.7 }} component="span" fontSize="inherit">
+            {" "}
+            - CLICK FOR DETAILS
+          </Typography>
+        </span>
       </div>
     </StyledLink>
   );

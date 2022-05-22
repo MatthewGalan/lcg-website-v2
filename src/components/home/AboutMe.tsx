@@ -1,24 +1,42 @@
-import React from "react";
-import { Stack } from "@mui/material";
+import React, { useEffect, useRef } from "react";
+import { Stack, useMediaQuery } from "@mui/material";
 import BiopicPNG from "../../assets/biopic.png";
 import Typography from "@mui/material/Typography";
 import styled from "styled-components";
+import { useLocation } from "react-router-dom";
 
 const StyledBiopic = styled.img`
   width: 300px;
+
+  @media only screen and (max-width: 768px) {
+    width: 150px;
+  }
 `;
 
 export default function AboutMe() {
+  const location = useLocation();
+  const widescreen = useMediaQuery("(min-width: 769px)");
+  const ref = useRef();
+
+  useEffect(() => {
+    // @ts-ignore
+    if (location.state?.about) {
+      // @ts-ignore
+      ref.current?.scrollIntoView();
+    }
+  });
+
   return (
     <Stack
-      direction="row"
-      spacing={4}
-      alignItems="flex-start"
-      sx={{ maxWidth: 932, mx: "auto", mt: 4 }}
+      ref={ref}
+      direction={widescreen ? "row" : "column"}
+      spacing={widescreen ? 4 : 2}
+      alignItems={widescreen ? "flex-start" : "center"}
+      sx={{ maxWidth: 932, mx: "auto", mt: 4, px: 2 }}
     >
       <StyledBiopic src={BiopicPNG} />
       <Typography>
-        <Typography fontWeight={500} component="span">
+        <Typography fontWeight={700} component="span">
           I am fortunate to live a very creative life.
         </Typography>{" "}
         Some days I am a graphic designer, other days I am a fine artist. My

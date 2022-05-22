@@ -46,7 +46,7 @@ const StyledGallery = styled.div`
   background-color: white;
 
   @media only screen and (max-width: 768px) {
-    padding: 8px 4px 0 4px;
+    padding: 8px 4px 24px 4px;
   }
 `;
 

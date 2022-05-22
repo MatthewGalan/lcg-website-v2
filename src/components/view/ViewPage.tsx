@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Modal, Stack } from "@mui/material";
 import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
@@ -61,6 +61,10 @@ export default function ViewPage() {
   const { id } = useParams();
   const { layout, pieces } = useLayoutAndPieces();
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  });
 
   const flatLayout = [...layout.left, ...layout.middle, ...layout.right];
 
