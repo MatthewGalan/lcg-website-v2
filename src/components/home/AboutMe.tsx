@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Box, IconButton, Link, Stack, useMediaQuery } from "@mui/material";
+import { Box, Link } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
@@ -31,16 +31,21 @@ const StyledDiv = styled.div`
       width: 40px;
       height: 40px;
       color: #2e3192;
-      margin-left: 16px;
+      margin-left: 7px;
     }
   }
 
   @media only screen and (max-width: 768px) {
     display: block;
 
+    p,
+    span {
+      font-size: 15px;
+    }
+
     .biopic {
       margin-top: 4px;
-      width: 153px;
+      width: 157px;
       float: left;
     }
 
@@ -48,10 +53,6 @@ const StyledDiv = styled.div`
       bottom: -8px;
     }
   }
-`;
-
-const StyledBiopic = styled.img`
-  width: 300px;
 `;
 
 export default function AboutMe() {
@@ -76,7 +77,7 @@ export default function AboutMe() {
           loading="lazy"
         />
         <Typography>
-          <Typography fontWeight={700} component="span">
+          <Typography fontWeight={600} component="span">
             I am fortunate to live a very creative life.
           </Typography>{" "}
           Some days I am a graphic designer, other days I am a fine artist. My
@@ -91,7 +92,7 @@ export default function AboutMe() {
           does the same for you.
           <br />
           <br />
-          <Typography fontWeight={500}>Member of:</Typography>
+          <Typography fontWeight={600}>Member of:</Typography>
           Rochester Art Club - Signature Member, Newsletter Editor
           <br />
           Pastel Society of Western New York
@@ -99,7 +100,7 @@ export default function AboutMe() {
           Greater Rochester Plein Air Painters
           <br />
           <br />
-          <Typography fontWeight={500}>Contact me:</Typography>
+          <Typography fontWeight={600}>Contact me:</Typography>
           <a href="mailto:galanlori@gmail.com">galanlori@gmail.com</a>
         </Typography>
         <div className="socials">

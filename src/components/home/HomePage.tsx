@@ -3,20 +3,25 @@ import { useLayoutAndPieces } from "../LayoutAndPiecesProvider";
 import { Box, Stack } from "@mui/material";
 import styled from "styled-components";
 import Thumbnail from "./Thumbnail";
-import LogoSVG from "../../assets/logo.svg";
+import MiniLogoSVG from "../../assets/mini_logo.svg";
 import LoadingSpinner from "../common/LoadingSpinner";
 import AboutMe from "./AboutMe";
 
 const StyledLogo = styled.div`
   margin: 64px auto 16px auto;
+  text-align: center;
+
+  .lori {
+    font-size: 31px;
+    letter-spacing: 2px;
+  }
 
   .originals {
-    text-align: center;
-    font-size: 18px;
+    font-size: 25px;
     font-weight: 300;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
     line-height: 1;
-    margin-top: 12px;
+    margin-top: 2px;
   }
 
   img {
@@ -26,9 +31,14 @@ const StyledLogo = styled.div`
   @media only screen and (max-width: 768px) {
     margin: 32px auto 8px auto;
 
+    .lori {
+      font-size: 19px;
+    }
+
     .originals {
       font-size: 14px;
-      margin-top: 4px;
+      letter-spacing: 4px;
+      margin-top: 0;
     }
 
     img {
@@ -64,6 +74,7 @@ const StyledColumn = styled.div`
 `;
 
 const StyledFooter = styled.div`
+  font-size: 14px;
   max-width: 600px;
   text-align: center;
   opacity: 0.5;
@@ -87,7 +98,8 @@ export default function HomePage() {
   return (
     <Stack>
       <StyledLogo>
-        <img src={LogoSVG} alt="LCG logo" />
+        <img src={MiniLogoSVG} alt="LCG logo" />
+        <div className="lori">LORI CAPRON GALAN</div>
         <div className="originals">ORIGINALS</div>
       </StyledLogo>
 

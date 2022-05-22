@@ -29,6 +29,7 @@ const StyledModalContents = styled.div`
     font-weight: 700;
     font-size: 24px;
     margin-bottom: 8px;
+    line-height: 1.25;
   }
 
   .contact {
@@ -102,7 +103,7 @@ export default function ViewPage() {
 
           <div className="modal-tag">Interesting in purchasing this piece?</div>
           <div className="modal-desc">
-            I would love to get in touch to discuss delivery, framing, and
+            I would love to get in touch to discuss framing, delivery and
             payment. Please reach out via email or phone.
           </div>
           <div className="contact">
