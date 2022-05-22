@@ -73,6 +73,7 @@ export default function UnsavedChanges({
       onClose={(_, reason) => {
         if (reason !== "timeout") return;
         setAutoHidden(true);
+        setTimeout(() => setSaveState(SaveState.NONE), 250);
       }}
     >
       <Paper elevation={4} sx={{ p: 2, width: 450 }}>
