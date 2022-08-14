@@ -83,13 +83,13 @@ export default function AboutMe() {
           Some days I am a graphic designer, other days I am a fine artist. My
           favorite project is whatever I happen to be working on at the moment.
           Whether I am at my computer or at my easel, a creative challenge
-          always excites me. The fine art in my gallery are all originals. I
-          love bold, rich color and prefer painting from life. The changing
-          seasons and weather of Upstate New York offer constant inspiration. I
-          enjoy traveling and often take my gear along with me to paint en plein
-          air. When the weather forces me inside, I will set up an unusual still
-          life in my studio space. Painting brings me joy and I hope my work
-          does the same for you.
+          always excites me. The fine art pieces in my gallery are all
+          originals. I love bold, rich color and prefer painting from life. The
+          changing seasons and weather of Upstate New York offer constant
+          inspiration. I enjoy traveling and often take my gear along with me to
+          paint en plein air. When the weather forces me inside, I will set up
+          an unusual still life in my studio space. Painting brings me joy and I
+          hope my work does the same for you.
           <br />
           <br />
           <Typography fontWeight={600}>Member of:</Typography>
