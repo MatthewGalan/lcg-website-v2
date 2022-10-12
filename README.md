@@ -1,46 +1,20 @@
-# Getting Started with Create React App
+# [loricaprongalan.com](https://www.loricaprongalan.com)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the React app for [loricaprongalan.com](https://www.loricaprongalan.com). This is a portfolio website for my mom, made by me.
 
-## Available Scripts
+There is an admin portal which allows her to upload new pieces, edit titles/descriptions/etc, and rearrange pieces. Images and descriptions are hosted on AWS S3 and DynamoDB, respectively. The backend is a spaghetti mess of lambdas and API Gateway (not doing that again lol).
 
-In the project directory, you can run:
+Seriously, she's an amazing artist, so check out her work at [loricaprongalan.com](https://www.loricaprongalan.com) (and admire the well engineered website). If you find a bug or manage to break something, send me an email at matthewgalan1@gmail.com. Thanks!
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Screenshots
+Or literally just go to [loricaprongalan.com](https://www.loricaprongalan.com)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+*Home page*
+![image](https://user-images.githubusercontent.com/20482179/195264339-6936c9f2-494f-4507-830f-840a0dfc86c6.png)
 
-### `npm test`
+*Piece viewer*
+![image](https://user-images.githubusercontent.com/20482179/195264493-24dec64a-63c1-499a-a497-29d58422c822.png)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+*About section*
+![image](https://user-images.githubusercontent.com/20482179/195264580-55b46021-0720-45a5-b771-55eafa32eb6e.png)
